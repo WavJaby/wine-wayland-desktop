@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later
+ * Copyright (c) 2026 the wine-wayland-desktop contributors */
 /* Inject real touch input into the largest visible window of a process (Windows 8+ InjectTouchInput), and screenshot it.
  * Must run in the interactive session (schtasks /IT), not from an ssh service session.
  * Usage: touch-inject.exe <exe-name> <log> <cmd>...   coordinates are fractions of the window rect

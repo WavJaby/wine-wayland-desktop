@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright (c) 2026 the wine-wayland-desktop contributors
 # Experimental single-file Wine PE transaction. SPDX-License-Identifier: LGPL-2.1-or-later
 set -euo pipefail
 export LC_ALL=C

@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later
+ * Copyright (c) 2026 the wine-wayland-desktop contributors */
 /* Virtual touchscreen + keyboard through /dev/uinput: events take the real path (kernel -> libinput -> compositor -> client).
  * Usage: uinput-inject <width> <height> <cmd>...   coordinates in output pixels (the touchscreen maps onto one output)
  *   tap <x> <y>

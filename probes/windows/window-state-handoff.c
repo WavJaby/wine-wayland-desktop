@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later
+ * Copyright (c) 2026 the wine-wayland-desktop contributors */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>

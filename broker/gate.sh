@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# Copyright (c) 2026 the wine-wayland-desktop contributors
 # Broker gate: Wine launches from separate `flatpak run` instances (= sibling pid namespaces) against one test prefix.
 # Usage: gate.sh [control|cross|concurrent|signals|bottles|all]   (default all). Prints PASS/FAIL lines; logs in $P/gate-logs/.
 #   control     unbrokered runner: second instance while the first runs (expect it NOT to reach the first's server)

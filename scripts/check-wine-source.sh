@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copyright (c) 2026 the wine-wayland-desktop contributors
 # Verify that a Wine checkout is exactly the source named by wine.lock. SPDX-License-Identifier: LGPL-2.1-or-later
 # Usage: check-wine-source.sh WINE_CHECKOUT [LOCKFILE]   exit 0 = match, 1 = mismatch, 2 = usage/lock error
 # Accepts the locked commit, or any commit with the locked tree (rewritten history, same files); the base commit must be an ancestor; the worktree must be clean.

@@ -1,3 +1,4 @@
+/* Copyright (c) 2026 the wine-wayland-desktop contributors */
 /* SPDX-License-Identifier: LGPL-2.1-or-later
  * Prefix-scoped Wine launch broker. Linux, no interpreter dependency.
  * Wire format: bounded native-endian local records; never compatible with

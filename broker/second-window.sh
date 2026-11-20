@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# Copyright (c) 2026 the wine-wayland-desktop contributors
 # Second GUI process in one prefix: start Notepad A, then Notepad B, then ask hungprobe.exe whether each window answers.
 # Usage: second-window.sh <runner-name> <x11|wayland> [tag]   env SW_ENV='A=1 B=2' adds sandbox env (e.g. the bottle's)
 # One plain `flatpak run` instance, no broker (calls the runner's real loader when the runner is brokered).

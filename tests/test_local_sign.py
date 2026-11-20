@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# Copyright (c) 2026 the wine-wayland-desktop contributors
 """Real signature and recovery tests on disposable Wine PE copies."""
 import hashlib
 import json

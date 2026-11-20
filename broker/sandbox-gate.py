@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# Copyright (c) 2026 the wine-wayland-desktop contributors
 """Exercise the actual dedicated-sandbox option of a disposable test bottle named by BROKER_GATE_BOTTLE (never a bottle in daily use):
 it temporarily edits that bottle's bottle.yml, launches its registered NsProbe program twice and puts the file back unless something else changed it meanwhile."""
 from pathlib import Path

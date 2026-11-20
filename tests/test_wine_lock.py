@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# Copyright (c) 2026 the wine-wayland-desktop contributors
 """check-wine-source.sh against throw-away git repositories."""
 import os
 from pathlib import Path

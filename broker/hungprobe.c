@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later
+ * Copyright (c) 2026 the wine-wayland-desktop contributors */
 /* Lists top-level "Notepad" class windows; WM_NULL with a 3 s timeout decides responsive vs hung. */
 #include <windows.h>
 #include <stdio.h>

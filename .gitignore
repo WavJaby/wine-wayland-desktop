@@ -21,6 +21,13 @@ __pycache__/
 /docs/
 /CLAUDE.md
 
-# Broker build output and retained comparison prototype
+# Broker build output and the superseded Python prototype (local only)
 /broker/wine-dispatch
 /broker/wine-dispatch-prototype.py
+
+# Signing transaction state, keys and certificates must never be committed
+.wine-wayland-signing/
+*.pem
+*.key
+*.p12
+*.pfx

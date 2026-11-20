@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later
+ * Copyright (c) 2026 the wine-wayland-desktop contributors */
 /* Broker gate probe: prints its Win32 pid, sleeps argv[1] seconds, exits with argv[2]. */
 #include <windows.h>
 #include <stdio.h>

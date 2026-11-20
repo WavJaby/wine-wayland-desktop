@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: LGPL-2.1-or-later
+ * Copyright (c) 2026 the wine-wayland-desktop contributors */
 /* Log everything a window is told about touch input, for a field-by-field Windows vs Wine comparison.
  * Usage: touch-log.exe <log> <handle|def> <ms> [x y w h]
  *   handle: consume WM_POINTER* like a touch-aware toolkit (return 0, SkipPointerFrameMessages)
