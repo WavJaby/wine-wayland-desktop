@@ -5,6 +5,6 @@ url=https://github.com/WavJaby/wine.git
 branch=wine-wayland/11.18
 base_tag=wine-11.18
 base_commit=7b3fff76fa5178f6ce0141b2c776afa2a822f101
-commit=3dd2c70c3eda9467f2d4c172e8fe9a26203ae488
+commit=40a9c78cb16a5f1401ba64eb3c0b935a5d0d87dd
 # Tree id of that commit: stays valid if the history is rewritten without changing any file.
-tree=d59e7e45e5e8278e81ed7c8b67ff3054e2b56774
+tree=3aa35d45690afa65acb82d47cf7203f99849ce78
