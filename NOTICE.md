@@ -25,8 +25,6 @@ It must not be represented as a new restriction on Wine's LGPL permissions.
 A locally generated certificate does not grant a vendor's identity, trademark
 permission or endorsement. A notice is not proof of general legal compliance.
 
-The historical source exporter currently includes only a pinned Wine snapshot
-and an explicit documentation allowlist. Before adding tooling to a public
-artifact, include its source, matching license notices and dependencies, and
-audit the actual package contents. This license pass does not publish an
-artifact or update a historical archive.
+No release artifact has been published from this repository. Before one is,
+include its source, matching license notices and dependencies, and audit the
+actual package contents.

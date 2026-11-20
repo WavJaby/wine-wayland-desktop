@@ -1,4 +1,5 @@
 """Real signature and recovery tests on disposable Wine PE copies."""
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -145,6 +146,46 @@ class TransactionTests(unittest.TestCase):
         self.assertNotEqual(p.target.read_bytes(), p.before)
         p.run('restore')
         self.assertEqual(p.target.read_bytes(), p.before)
+
+    def test_prepared_manifest_with_untouched_target_is_recoverable(self):
+        """Killed after the manifest is persisted but before the rename: reproduced by marking a restored transaction "prepared" (target equals the recorded original)."""
+        p = prefixes(self)
+        p.run('apply', extra=ACK)
+        p.run('restore')
+        manifest = p.state() / 'manifest.json'
+        data = json.loads(manifest.read_text())
+        self.assertEqual(data['status'], 'restored')
+        p.run('apply', 1, ACK)  # a finished transaction still occupies the slot
+        data['status'] = 'prepared'
+        manifest.write_text(json.dumps(data))
+        p.run('apply', extra=ACK)
+        self.assertNotEqual(p.target.read_bytes(), p.before)
+        self.assertEqual(json.loads(manifest.read_text())['status'], 'applied')
+        p.run('restore')
+        self.assertEqual(p.target.read_bytes(), p.before)
+
+    def test_prepared_manifest_after_rename_is_not_reused(self):
+        """Killed after the rename but before "applied" is recorded: the target is signed, so only restore may proceed."""
+        p = prefixes(self)
+        p.run('apply', extra=ACK)
+        manifest = p.state() / 'manifest.json'
+        data = json.loads(manifest.read_text())
+        data['status'] = 'prepared'
+        manifest.write_text(json.dumps(data))
+        p.run('apply', 1, ACK)
+        p.run('restore')
+        self.assertEqual(p.target.read_bytes(), p.before)
+
+    def test_stale_temporaries_of_this_target_are_removed(self):
+        p = prefixes(self)
+        tag = hashlib.sha256(RELATIVE.encode()).hexdigest()[:16]
+        stale = p.target.parent / f'.local-sign-{tag}-STALE000'
+        other = p.target.parent / '.local-sign-0000000000000000-OTHER000'
+        stale.write_bytes(b'partial')
+        other.write_bytes(b'another target\'s temporary')
+        p.run('apply', extra=ACK)
+        self.assertFalse(stale.exists())
+        self.assertTrue(other.exists())
 
     def test_zombie_process_does_not_block(self):
         """A defunct process of the same user has no environment to read and cannot be a Wine client."""

@@ -51,6 +51,8 @@ Obtain those tools from their upstream projects or your distribution; they are
 not bundled. Stop every process using the chosen prefix before apply/restore.
 Use a disposable prefix first and preserve an independent backup.
 
+The tool refuses to run when it finds a process of yours that has this prefix in its WINEPREFIX variable. That check is best effort: it does not see a Wine process started without WINEPREFIX (which uses ~/.wine), a process in a namespace you cannot inspect, or one started after the check. The same applies to conflict detection: it compares file hashes and then renames, so it cannot defend against another program replacing the file in between. Exclusive access to the prefix, for the whole run, is your responsibility.
+
 Example paths below are placeholders. The original PE must be byte-identical
 to the target and contain Wine's builtin marker. The tool deliberately refuses
 arbitrary application executables.
@@ -72,8 +74,11 @@ bash scripts/local-sign.sh restore \
 ```
 
 Omit --certificate-config to test the neutral default. An apply that fails or
-is interrupted before the file is replaced leaves the target unchanged and can
-be repeated; staging left by a killed process is removed by the next apply. Restore refuses to
+is interrupted before the file is renamed leaves the target unchanged and can
+be repeated; staging and temporary files left by a killed process (SIGKILL,
+power loss) are removed by the next apply or restore of the same file. If the
+process died after the rename but before the transaction was marked applied,
+the file is already signed: use restore. Restore refuses to
 overwrite an independently updated file. Each file has one transaction slot;
 a second apply is refused even after restore. Preserve the existing state and
 use a fresh disposable prefix for a new experiment. The tool is experimental,

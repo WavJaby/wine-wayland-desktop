@@ -1,4 +1,5 @@
-# Wine source this repository's runner is built from; verified by scripts/check-wine-source.sh.
+# Wine source this repository's runner is intended to be built from; checked by scripts/check-wine-source.sh.
+# That script compares tree and ancestry only (not url, branch or base_tag). No matching public build exists yet.
 # url is the intended fork location and does not exist until the fork is published.
 url=https://github.com/WavJaby/wine.git
 branch=wine-wayland/11.18

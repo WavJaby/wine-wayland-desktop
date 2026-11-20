@@ -1,9 +1,10 @@
 # Private local compatibility testing
 
 The optional local signing tool creates experimental output on your machine.
-Use that output only for your own private compatibility testing. The project
-supplies an unsigned general runner and does not distribute generated signed
-files, private keys, certificates or prepared application prefixes.
+The project intends it only for your own private compatibility testing, and
+does not distribute generated signed files, private keys, certificates or
+prepared application prefixes. The intended distribution is an unsigned
+general runner plus this separate tool; no runner is published yet.
 
 A locally generated certificate is self-signed. Its subject fields are labels
 chosen by its creator, not verified evidence of a publisher's identity,

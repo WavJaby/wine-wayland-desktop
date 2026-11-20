@@ -45,6 +45,7 @@ parent=$(realpath -e -- "$(dirname -- "$target")")
 [[ -f $target ]] || fail 'Target is not a regular file or file symlink'
 hash() { sha256sum -- "$1" | cut -d ' ' -f1; }
 key=$(printf '%s' "$relative" | sha256sum | cut -d ' ' -f1)
+tag=${key:0:16} # names this target's temporary files, so stale ones can be removed without touching another target's
 state=$prefix/.wine-wayland-signing/$key
 manifest=$state/manifest.json
 if [[ $operation == inspect ]]; then
@@ -111,7 +112,7 @@ trap 'exit 129' HUP
 # Stage in the destination directory, then rename and flush the filesystem.
 replace_file() {
     local input=$1 mode=$2
-    temporary=$(mktemp -- "$parent/.local-sign-XXXXXXXX")
+    temporary=$(mktemp -- "$parent/.local-sign-$tag-XXXXXXXX")
     cat -- "$input" > "$temporary"
     chmod "$mode" "$temporary"
     sync -f "$temporary"
@@ -129,6 +130,8 @@ write_manifest() {
     sync -f "$state"
 }
 offline
+# Holding this target's lock: a temporary left by a killed run (SIGKILL, power loss) can only be this target's.
+rm -f -- "$parent"/.local-sign-"$tag"-*
 if [[ $operation == restore ]]; then
     [[ -f $manifest && ! -L $manifest ]] || fail 'Missing or unsafe manifest'
     [[ $(jq -r .file "$manifest") == "$relative" ]] || fail 'Manifest target mismatch'
@@ -139,7 +142,7 @@ if [[ $operation == restore ]]; then
     [[ $(hash "$state/original") == "$original" ]] || fail 'Backup integrity failure'
     link=$(jq -r '.symlink // empty' "$manifest")
     if [[ -n $link ]]; then
-        temporary=$(mktemp -- "$parent/.local-sign-XXXXXXXX")
+        temporary=$(mktemp -- "$parent/.local-sign-$tag-XXXXXXXX")
         rm -- "$temporary"
         ln -s -- "$link" "$temporary"
         [[ $(hash "$temporary") == "$original" ]] || fail 'Original symlink destination changed'
@@ -153,9 +156,13 @@ if [[ $operation == restore ]]; then
     write_manifest restored
     exit 0
 fi
-[[ ! -e $manifest ]] || fail 'Existing transaction: inspect/restore; do not reuse'
-# The manifest is written before the target is replaced, so none means the target was never touched: staging left by a killed apply (SIGKILL, power loss) is safe to drop.
-rm -f -- "$state"/{original,signed,key.pem,certificate.pem,certificate.cnf,plan.json} "$state"/.manifest-*
+# The manifest is written ("prepared") before the target is renamed. No manifest, or "prepared" with the target still equal to the recorded original, means the target was never touched:
+# staging left by a killed apply (SIGKILL, power loss) is safe to drop and the slot is reusable. Any other state belongs to inspect/restore.
+if [[ -e $manifest ]]; then
+    [[ ! -L $manifest && $(jq -r .status "$manifest") == prepared && $(hash "$target") == "$(jq -r .original_sha256 "$manifest")" ]] ||
+        fail 'Existing transaction: inspect/restore; do not reuse'
+fi
+rm -f -- "$state"/{original,signed,key.pem,certificate.pem,certificate.cnf,plan.json,manifest.json} "$state"/.manifest-*
 [[ -n $source && -f $source && $(hash "$source") == "$(hash "$target")" ]] || fail 'Supply an identical original Wine runner PE with --source'
 [[ $(od -An -tx1 -N2 -- "$target" | tr -d ' \n') == 4d5a ]] || fail 'Not a PE file'
 # Wine writes this exact marker immediately after the 64-byte DOS header.

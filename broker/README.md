@@ -5,7 +5,7 @@ Development implementation for Linux. Build with `make`; install the resulting
 `wine` and `wineserver` as `wine-real` and `wineserver-real`, then make `wine`
 and `wineserver` symlinks to `wine-dispatch`. Wine tool aliases must still reach
 `wine` with their original basename. Do not replace binaries while prefix
-applications are running. The Python prototype is retained for comparison only.
+applications are running.
 
 The first caller elects a detached owner in its PID namespace. All invocations,
 including direct wineserver operations, use authenticated Unix IPC to execute
@@ -43,12 +43,19 @@ GUI close/stop policy still belongs to Bottles and requires explicit testing.
 - `python3 test-dispatch.py`: disposable fake runner; argv (including Unicode,
   shell metacharacters and empty values), env, cwd, stdin/stdout, exit 7,
   concurrent children, INT/TERM transport and idle exit
-- `bash gate.sh cross`, `concurrent`, `signals`, `bottles`: real Wine in the
-  existing **Wine-Wayland-Test** bottle, across fresh Flatpak instances
+- `bash gate.sh cross`, `concurrent`, `signals`, `bottles`: real Wine in a
+  disposable Bottles test bottle, across fresh Flatpak instances
 - `python3 sandbox-gate.py`: temporarily enables that test bottle's actual
-  dedicated sandbox option, launches its registered NsProbe twice using
-  Bottles CLI, checks one namespace, and restores the exact config in `finally`
+  dedicated sandbox option, launches its registered NsProbe program twice using
+  Bottles CLI, checks one namespace, and puts the config back unless it changed meanwhile
 
-The last two gates are local development scripts with this workspace's test
-bottle/runner paths. They must not be pointed at an active user-data prefix.
-No test authorizes modifying the production LINE runner.
+The last two gates are development scripts for a Bottles + Flatpak setup. They
+refuse to run unless `BROKER_GATE_BOTTLE` names the test bottle (`gate.sh` also
+needs `BROKER_GATE_RUNNER`, the brokered runner's directory name, and
+`BROKER_GATE_STOCK_RUNNER` for `control`). They run Wine, create files and kill
+the wineserver in that bottle: never name a bottle in daily use. The test
+programs `nsprobe.exe` and `hungprobe.exe` are Windows executables you build
+yourself from `nsprobe.c` and `hungprobe.c` (for example with
+`x86_64-w64-mingw32-gcc`); put them in the bottle's `C:\` and register
+`nsprobe.exe` as a Bottles program named NsProbe. `second-window.sh` also changes the bottle's graphics driver key and
+takes a whole-desktop screenshot only with `SW_SCREENSHOT=1`.

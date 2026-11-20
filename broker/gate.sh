@@ -8,9 +8,14 @@
 # Touches only $P (test prefix, proto runner) and /tmp/.wine-<uid>/{server,broker}-<key of that prefix>.
 set -uo pipefail
 P=$HOME/.var/app/com.usebottles.bottles/data/broker-proto
-PREFIX=$HOME/.var/app/com.usebottles.bottles/data/bottles/bottles/Wine-Wayland-Test
-PROTO=$HOME/.var/app/com.usebottles.bottles/data/bottles/runners/wine-wayland-broker-proto-amd64/bin
-STOCK=$HOME/.var/app/com.usebottles.bottles/data/bottles/runners/wine-11.18-wayland-touch-preview-amd64/bin
+# These gates run Wine, create files and kill wineservers in the named bottle: point them only at a disposable test bottle, never one in daily use.
+# BROKER_GATE_BOTTLE = bottle name, BROKER_GATE_RUNNER = brokered runner dir name, BROKER_GATE_STOCK_RUNNER = unbrokered runner (only for `control`).
+BOTTLE=${BROKER_GATE_BOTTLE:?set BROKER_GATE_BOTTLE to a disposable test bottle}
+PROTO_NAME=${BROKER_GATE_RUNNER:?set BROKER_GATE_RUNNER to the brokered runner directory name}
+BOTTLES_DATA=$HOME/.var/app/com.usebottles.bottles/data/bottles
+PREFIX=$BOTTLES_DATA/bottles/$BOTTLE
+PROTO=$BOTTLES_DATA/runners/$PROTO_NAME/bin
+STOCK=$BOTTLES_DATA/runners/${BROKER_GATE_STOCK_RUNNER:-unset}/bin
 L=$P/gate-logs
 mkdir -p "$L"
 fails=0
@@ -125,11 +130,10 @@ signals() {
         || fail "signals: -k took ${dt}s ($(tr '\n' '|' <"$L/s-A.log") / $(cat "$L/s-k.log"))"
 }
 
-# Through Bottles itself (program NsProbe in bottle Wine-Wayland-Test, args "40 0"):
+# Through Bottles itself (program NsProbe, registered in the test bottle beforehand, args "40 0"):
 #   desk = the exact Exec line Bottles writes into a generated desktop entry (fresh instance per launch);
 #   gui  = bottles-cli run via `flatpak enter` into a separate long-lived instance -> the same WineCommand path the GUI
 #          runs in-process, in a namespace that is neither caller's. Not a real GUI click: that stays a user step.
-BOTTLE=Wine-Wayland-Test
 desk() { flatpak run --command=bottles-cli com.usebottles.bottles run -p NsProbe -b "$BOTTLE" -- >/dev/null 2>&1; }
 gui_holder() {
     local before; before=$(flatpak ps --columns=instance | sort)

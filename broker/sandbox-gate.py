@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Exercise the actual dedicated-sandbox option of the local disposable bottle."""
+"""Exercise the actual dedicated-sandbox option of a disposable test bottle named by BROKER_GATE_BOTTLE (never a bottle in daily use):
+it temporarily edits that bottle's bottle.yml, launches its registered NsProbe program twice and puts the file back unless something else changed it meanwhile."""
 from pathlib import Path
 import subprocess,time,os,json,sys
+name=os.environ.get('BROKER_GATE_BOTTLE') or sys.exit('set BROKER_GATE_BOTTLE to a disposable test bottle')
 root=Path.home()/'.var/app/com.usebottles.bottles/data'
-p=root/'bottles/bottles/Wine-Wayland-Test'
+p=root/'bottles/bottles'/name
 config=p/'bottle.yml'
 original=config.read_bytes()
 log=Path(os.environ.get('BROKER_GATE_LOG') or root/'broker-proto/gate-logs/sandbox')
@@ -20,11 +22,12 @@ for proc in Path('/proc').iterdir():
         continue
     assert not active, f'Test prefix is still active in PID {proc.name}; wait for owner exit'
 # Use the real Bottles option, retaining the user's selected network/sound restrictions.
+modified=original.replace(b'    sandbox: false',b'    sandbox: true',1)
 try:
-    config.write_bytes(original.replace(b'    sandbox: false',b'    sandbox: true',1))
+    config.write_bytes(modified)
     def launch(tag):
         f=(log/(tag+'.log')).open('w')
-        proc=subprocess.Popen(['flatpak','run','--command=bottles-cli','com.usebottles.bottles','run','-p','NsProbe','-b','Wine-Wayland-Test','--'],stdout=f,stderr=subprocess.STDOUT)
+        proc=subprocess.Popen(['flatpak','run','--command=bottles-cli','com.usebottles.bottles','run','-p','NsProbe','-b',name,'--'],stdout=f,stderr=subprocess.STDOUT)
         f.close();return proc
     def probes():
         found=[]
@@ -51,5 +54,9 @@ try:
     print('remaining probes',probes(),flush=True)
     print('PASS actual Bottles sandbox=true repeated CLI launch',flush=True)
 finally:
-    config.write_bytes(original)
-    print('Restored original test bottle configuration',flush=True)
+    if config.read_bytes()==modified:
+        config.write_bytes(original)
+        print('Restored original test bottle configuration',flush=True)
+    else:  # Bottles or the owner changed the file during the run: do not discard that change.
+        (log/'bottle.yml.original').write_bytes(original)
+        print(f'bottle.yml changed during the run; left as is, original saved to {log}/bottle.yml.original',flush=True)
