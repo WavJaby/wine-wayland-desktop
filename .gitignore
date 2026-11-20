@@ -1,0 +1,26 @@
+# Separate repositories and build trees
+/src/
+# Scratch runs and their evidence; durable evidence is copied under docs/
+/tmp/
+# Built release artifacts
+/dist/
+# Private evidence: logs, captures and dumps that may hold account or machine data
+*private*/
+# Compiled probes
+/probes/**/*.exe
+/probes/touch-inject/uinput-inject
+# Empty local tool dirs
+/.agents/
+/.aws/
+/.codex/
+# Python bytecode
+__pycache__/
+# Agent-only tools (not product)
+/scripts/.agent/
+# Agent working state (local by default)
+/docs/
+/CLAUDE.md
+
+# Broker build output and retained comparison prototype
+/broker/wine-dispatch
+/broker/wine-dispatch-prototype.py

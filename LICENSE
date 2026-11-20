@@ -1,0 +1,22 @@
+wine-wayland-desktop
+Copyright (c) 2026 the wine-wayland-desktop contributors
+
+Unless a file states a different license, original project source code and
+its accompanying documentation are licensed under the GNU Lesser General
+Public License, version 2.1 or (at your option) any later version
+(SPDX-License-Identifier: LGPL-2.1-or-later).
+
+You may redistribute and/or modify covered software under those terms.
+The software is provided WITHOUT ANY WARRANTY, including any implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See COPYING.LIB for
+the complete, unmodified GNU Lesser General Public License version 2.1.
+
+Wine and other third-party components retain their own copyrights, licenses
+and file-level notices. This notice does not relicense third-party material,
+proprietary application files, personal data or private signing keys.
+See NOTICE.md for scope and attribution.
+
+The private-testing artifact policy is documented separately in
+PRIVATE-TESTING.md. It is not an additional restriction on rights
+already granted by the LGPL or another applicable component license, and it
+does not imply a genuine vendor signature or endorsement.
