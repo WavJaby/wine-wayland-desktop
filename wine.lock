@@ -1,0 +1,9 @@
+# Wine source this repository's runner is built from; verified by scripts/check-wine-source.sh.
+# url is the intended fork location and does not exist until the fork is published.
+url=https://github.com/WavJaby/wine.git
+branch=wine-wayland/11.18
+base_tag=wine-11.18
+base_commit=7b3fff76fa5178f6ce0141b2c776afa2a822f101
+commit=3dd2c70c3eda9467f2d4c172e8fe9a26203ae488
+# Tree id of that commit: stays valid if the history is rewritten without changing any file.
+tree=d59e7e45e5e8278e81ed7c8b67ff3054e2b56774
