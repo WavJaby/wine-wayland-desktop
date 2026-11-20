@@ -25,6 +25,9 @@ if sys.argv[1:]==['sleep']:
  try: time.sleep(30)
  except KeyboardInterrupt: sys.exit(130)
 elif sys.argv[1:]==['signal']: os.kill(os.getpid(),15)
+elif sys.argv[1:]==['sigstate']:
+ st=dict(l.split(':\t') for l in open('/proc/self/status').read().splitlines() if l.startswith(('SigIgn','SigBlk')))
+ print(json.dumps({k:int(v,16) for k,v in st.items()}))
 else:
  print(json.dumps(dict(args=sys.argv[1:],env=os.getenv('BROKER_TEST_VALUE'),cwd=os.getcwd(),stdin=sys.stdin.read())))
  sys.exit(7)
@@ -49,6 +52,17 @@ else:
     os.kill(owner,signal.SIGKILL);time.sleep(.2)
     recovered=subprocess.run([root/'wine','recovered'],input='',text=True,capture_output=True,env=env)
     assert recovered.returncode==7,recovered.stderr
+    # An owner elected by a launcher that ignores or blocks signals must not hand that state to the programs it runs.
+    owner=int(re.findall(r'broker up pid=(\d+)',blog.read_text())[-1])
+    os.kill(owner,signal.SIGKILL);time.sleep(.2)
+    def odd_signals():
+        signal.signal(signal.SIGINT,signal.SIG_IGN);signal.signal(signal.SIGQUIT,signal.SIG_IGN)
+        signal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGTERM,signal.SIGHUP})
+    state=subprocess.run([root/'wine','sigstate'],text=True,capture_output=True,env=env,preexec_fn=odd_signals)
+    assert state.returncode==0,state.stderr
+    st=json.loads(state.stdout)
+    touched=sum(1<<(n-1) for n in (signal.SIGINT,signal.SIGQUIT,signal.SIGTERM,signal.SIGHUP))
+    assert st['SigIgn']&touched==0 and st['SigBlk']==0,('signal state leaked into the program',st)
     # Concurrent requests must not serialize child execution.
     a=subprocess.Popen([root/'wine','sleep'],env=env)
     b=subprocess.Popen([root/'wine','sleep'],env=env)

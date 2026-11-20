@@ -34,6 +34,13 @@ struct header { uint32_t magic, bytes, argc, envc, server; };
 struct reply { uint32_t magic; int32_t status; };
 
 static void die(const char *s) { fprintf(stderr, "wine-dispatch: %s: %s\n", s, strerror(errno)); exit(125); }
+/* The owner and its children are elected by whichever launcher came first: an ignored or blocked signal there (a background shell ignores SIGINT) must not
+ * reach later launches. Dispositions survive exec, so reset every one and unblock all; the proxy still forwards the caller's signals explicitly. */
+static void default_signals(void)
+{
+    sigset_t none; sigemptyset(&none); sigprocmask(SIG_SETMASK,&none,NULL);
+    for (int sig=1; sig<NSIG; sig++) if (sig!=SIGKILL && sig!=SIGSTOP) signal(sig,SIG_DFL);
+}
 static int full(int fd, void *p, size_t n, int writing)
 {
     while (n) {
@@ -142,7 +149,7 @@ static void worker(int fd)
     pid_t pid=fork();
     if (pid<0) { reply(fd,-1); _exit(125); }
     if (!pid) {
-        signal(SIGPIPE,SIG_DFL); signal(SIGHUP,SIG_DFL);
+        default_signals();
         if (chdir(cwd)) { dprintf(fds[2],"wine-dispatch: inaccessible cwd: %s\n",strerror(errno)); _exit(127); }
         for(int i=0;i<3;i++) if(dup2(fds[i],i)<0) _exit(127);
         close_extra(); execve(target,argv,env);
@@ -168,6 +175,7 @@ static void worker(int fd)
 static void broker(int ready, int election)
 {
     prctl(PR_SET_NAME,"wine-broker",0,0,0);
+    default_signals();
     signal(SIGPIPE,SIG_IGN); signal(SIGHUP,SIG_IGN);
     int null=open("/dev/null",O_RDWR);
     for(int i=0;i<3;i++) dup2(null,i);
